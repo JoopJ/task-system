@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Task</title>
+    <style>
+        .form-container {
+            max-width: 600px;
+            margin: auto;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        .form-group button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .form-group button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Edit Task</h1>
+        <form method="POST" action="{{ url_for('edit_task', task_id=task.id) }}">
+            <div class="form-group">
+                <label for="name">Task Name</label>
+                <input type="text" id="name" name="name" value="{{ task.name }}" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Description</label>
+                <input type="text" id="description" name="description" value="{{ task.description }}">
+            </div>
+            <div class="form-group">
+                <label for="points">Points</label>
+                <input type="number" id="points" name="points" min="1" max="10" value="{{ task.points }}" required>
+            </div>
+            <div class="form-group">
+                <label for="frequency">Frequency</label>
+                <select id="frequency" name="frequency">
+                    <option value="singular" {% if task.frequency == 'singular' %}selected{% endif %}>Singular</option>
+                    <option value="daily" {% if task.frequency == 'daily' %}selected{% endif %}>Daily</option>
+                    <option value="weekly" {% if task.frequency == 'weekly' %}selected{% endif %}>Weekly</option>
+                    <option value="monthly" {% if task.frequency == 'monthly' %}selected{% endif %}>Monthly</option>
+                    <option value="yearly" {% if task.frequency == 'yearly' %}selected{% endif %}>Yearly</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="time">Due Time</label>
+                <input type="time" id="time" name="time" value="{{ task.time|format_time }}" required>
+            </div>
+            <div class="form-group">
+                <label for="start_date">Start Date</label>
+                <input type="date" id="start_date" name="start_date" value="{{ task.start_date }}" required>
+            </div>
+            <div class="form-group">
+                <label for="end_date">End Date</label>
+                <input type="date" id="end_date" name="end_date" value="{{ task.end_date }}">
+            </div>
+            <div class="form-group">
+                <button type="submit">Update Task</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

@@ -51,15 +51,22 @@
                 <th>Description</th>
                 <th>Due</th>
                 <th>Status</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            {% for task in today_tasks %}
+            {% for task_instance in today_tasks %}
                 <tr>
-                    <td>{{ task.name }}</td>
-                    <td>{{ task.description }}</td>
-                    <td>{{ task.time|format_time }}</td>
-                    <td>{{ task.status }}</td>
+                    <td>{{ task_instance.name }}</td>
+                    <td>{{ task_instance.description }}</td>
+                    <td>{{ task_instance.time|format_time }}</td>
+                    <td>{{ task_instance.status }}</td>
+                    <td>
+                        <form action="{{ url_for('update_task_instance_status', instance_id=task_instance.id) }}" method="post">
+                            <button type="submit" name="status" value="completed">Completed</button>
+                            <button type="submit" name="status" value="failed">Failed</button>
+                        </form>
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>

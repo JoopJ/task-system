@@ -58,6 +58,12 @@ def edit_task(task_id):
 
     return render_template('edit_task.html', task=task)
 
+@app.route('/update_task_instance_status/<int:instance_id>', methods=['POST'])
+def update_task_instance_status(instance_id):
+    status = request.form['status']
+    database.update_task_instance_status(instance_id, status)
+    return redirect(url_for('index'))
+
 @app.route('/remove_task/<int:task_id>')
 def remove_task(task_id):
     database.remove_task(task_id)
@@ -70,7 +76,6 @@ def remove_task(task_id):
 def format_time(value):
     time_obj = datetime.strptime(str(value), '%H:%M:%S')
     return time_obj.strftime('%H:%M')
-
 
 # Run the app
 

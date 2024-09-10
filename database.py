@@ -39,7 +39,7 @@ def create_tables():
         id INT AUTO_INCREMENT PRIMARY KEY,
         task_id INT NOT NULL,
         date DATE NOT NULL,
-        status ENUM('pending', 'complete',' failed') NOT NULL DEFAULT 'pending',
+        status ENUM('pending', 'completed', 'failed') NOT NULL DEFAULT 'pending',
         points_awarded INT,
         FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE
     )
@@ -198,5 +198,17 @@ def get_task_instances_by_date(date):
 def remove_task(task_id):
     conn, cursor = connect()
     cursor.execute("DELETE FROM tasks WHERE id = %s", (task_id,))
+    conn.commit()
+    conn.close()
+
+valid_statuses = ['pending', 'completed', 'failed']
+def update_task_instance_status(id, status):
+    if status not in valid_statuses:
+        raise ValueError(f"status must be one of {valid_statuses}")
+    print(f"Updating task {id} with status: {status}")
+
+
+    conn, cursor = connect()
+    cursor.execute("UPDATE task_instances SET status = %s WHERE id = %s", (status, id))
     conn.commit()
     conn.close()

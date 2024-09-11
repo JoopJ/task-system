@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for
 from datetime import datetime, date
 
 import database
+from task_scheduler import start_scheduler
 
 app = Flask(__name__)
 
@@ -77,7 +78,9 @@ def format_time(value):
     time_obj = datetime.strptime(str(value), '%H:%M:%S')
     return time_obj.strftime('%H:%M')
 
-# Run the app
-
 if __name__ == '__main__':
+    # Start the scheduler in a separate thread
+    start_scheduler()
+
+    # Run the Flask app
     app.run(debug=True)

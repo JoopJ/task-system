@@ -22,4 +22,4 @@ class TaskInstance:
         self.time = time
 
     def __str__(self):
-        return f'{self.id}: {self.task_id} - {self.status} - {self.date}'
+        return f'{self.id}: {self.task_id} - {self.status}'

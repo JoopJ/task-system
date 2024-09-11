@@ -99,6 +99,8 @@ def insert_task_instances_for_task(task_id, frequency, start_date, end_date):
                 ''', (end_date, start_date))
             days = cursor.fetchone()[0]
 
+            print(f"\nInserting {days} daily task instances")
+
             for i in range(days + 1):
                 date = datetime.strptime(start_date, '%Y-%m-%d') + timedelta(days=i)
                 insert_task_instance(task_id, date.strftime('%Y-%m-%d'))
@@ -108,6 +110,8 @@ def insert_task_instances_for_task(task_id, frequency, start_date, end_date):
                 SELECT DATEDIFF(%s, %s)
                 ''', (end_date, start_date))
             weeks = cursor.fetchone()[0] // 7
+
+            print(f"\nInserting {weeks} weekly task instances")
 
             for i in range(weeks + 1):
                 date = datetime.strptime(start_date, '%Y-%m-%d') + timedelta(weeks=i)
@@ -119,6 +123,8 @@ def insert_task_instances_for_task(task_id, frequency, start_date, end_date):
                 ''', (start_date, end_date))
             months = cursor.fetchone()[0]
 
+            print(f"\nInserting {months} monthly task instances")
+
             for i in range(months + 1):
                 date = datetime.strptime(start_date, '%Y-%m-%d') + relativedelta(months=i)
                 insert_task_instance(task_id, date.strftime('%Y-%m-%d'))
@@ -129,9 +135,15 @@ def insert_task_instances_for_task(task_id, frequency, start_date, end_date):
                 ''', (start_date, end_date))
             years = cursor.fetchone()[0]
 
+            print(f"\nInserting {years} yearly task instances", task_id)
+
             for i in range(years + 1):
                 date = datetime.strptime(start_date, '%Y-%m-%d') + relativedelta(years=i)
                 insert_task_instance(task_id, date.strftime('%Y-%m-%d'))
+
+    conn.commit()
+    conn.close()
+    return
 
 def update_task(task_id, name, points, frequency, 
                 time, start_date, description=None, end_date=None):

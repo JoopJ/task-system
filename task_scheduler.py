@@ -22,8 +22,9 @@ def check_tasks():
 
     for task_instance in task_instances:
         print(task_instance.name)
+        print(current_timedelta, task_instance.time - timedelta(minutes=5), task_instance.time)
         if (current_timedelta == task_instance.time - timedelta(minutes=5) 
-            and current_timedelta == task_instance.time
+            or current_timedelta == task_instance.time
             and task_instance.status == 'pending'):
             print("Sending notification for:", task_instance)
             send_task_notification(task_instance)

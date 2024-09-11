@@ -36,8 +36,6 @@ The application uses the following environment variables:
 - End of day check-off of completed tasks
 - Mobile device interaction:
     - View today's tasks
-    - Receive notifications for tasks
-    - Mark task as completed 
 - Display point score
 
 ## Contributing

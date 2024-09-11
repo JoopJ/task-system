@@ -42,7 +42,6 @@ def add_task():
 @app.route('/edit_task/<int:task_id>', methods=['GET', 'POST'])
 def edit_task(task_id):
     task = database.get_task(task_id)
-    print(task)
     if request.method == 'POST':
         name = request.form['name']
         points = int(request.form['points'])

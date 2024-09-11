@@ -71,16 +71,13 @@ def insert_task(name, points, frequency, time, start_date, description=None, end
     insert_task_instances_for_task(task_id, frequency, start_date, end_date)
     return task_id
 
-def insert_task_instance(task_id, date):
-    conn, cursor = connect()
-
+def insert_task_instance(task_id, date, conn, cursor):
     cursor.execute('''
         INSERT INTO task_instances (task_id, date) 
         VALUES (%s, %s)''',
         (task_id, date)
     )
     conn.commit()
-    conn.close()    
 
 def insert_task_instances_for_task(task_id, frequency, start_date, end_date):
     conn, cursor = connect()
@@ -91,7 +88,7 @@ def insert_task_instances_for_task(task_id, frequency, start_date, end_date):
 
     match frequency:
         case 'singular':
-            insert_task_instance(task_id, start_date)
+            insert_task_instance(task_id, start_date, conn, cursor)
 
         case 'daily':
             cursor.execute('''
@@ -99,11 +96,9 @@ def insert_task_instances_for_task(task_id, frequency, start_date, end_date):
                 ''', (end_date, start_date))
             days = cursor.fetchone()[0]
 
-            print(f"\nInserting {days} daily task instances")
-
             for i in range(days + 1):
                 date = datetime.strptime(start_date, '%Y-%m-%d') + timedelta(days=i)
-                insert_task_instance(task_id, date.strftime('%Y-%m-%d'))
+                insert_task_instance(task_id, date.strftime('%Y-%m-%d'), conn, cursor)
 
         case 'weekly':
             cursor.execute('''
@@ -111,11 +106,9 @@ def insert_task_instances_for_task(task_id, frequency, start_date, end_date):
                 ''', (end_date, start_date))
             weeks = cursor.fetchone()[0] // 7
 
-            print(f"\nInserting {weeks} weekly task instances")
-
             for i in range(weeks + 1):
                 date = datetime.strptime(start_date, '%Y-%m-%d') + timedelta(weeks=i)
-                insert_task_instance(task_id, date.strftime('%Y-%m-%d'))
+                insert_task_instance(task_id, date.strftime('%Y-%m-%d'), conn, cursor)
         
         case 'monthly':
             cursor.execute('''
@@ -123,11 +116,9 @@ def insert_task_instances_for_task(task_id, frequency, start_date, end_date):
                 ''', (start_date, end_date))
             months = cursor.fetchone()[0]
 
-            print(f"\nInserting {months} monthly task instances")
-
             for i in range(months + 1):
                 date = datetime.strptime(start_date, '%Y-%m-%d') + relativedelta(months=i)
-                insert_task_instance(task_id, date.strftime('%Y-%m-%d'))
+                insert_task_instance(task_id, date.strftime('%Y-%m-%d'), conn, cursor)
 
         case 'yearly':
             cursor.execute('''
@@ -135,11 +126,9 @@ def insert_task_instances_for_task(task_id, frequency, start_date, end_date):
                 ''', (start_date, end_date))
             years = cursor.fetchone()[0]
 
-            print(f"\nInserting {years} yearly task instances", task_id)
-
             for i in range(years + 1):
                 date = datetime.strptime(start_date, '%Y-%m-%d') + relativedelta(years=i)
-                insert_task_instance(task_id, date.strftime('%Y-%m-%d'))
+                insert_task_instance(task_id, date.strftime('%Y-%m-%d'), conn, cursor)
 
     conn.commit()
     conn.close()
@@ -152,7 +141,6 @@ def update_task(task_id, name, points, frequency,
 
     task = get_task(task_id)
     if task is None:
-        print(f"Task with id {task_id} not found.")
         conn.close()
         return
 
@@ -161,38 +149,31 @@ def update_task(task_id, name, points, frequency,
     update_values = []
 
     if name != task.name:
-        print("Name changed.")
         update_fields.append('name = %s')
         update_values.append(name)
     if description not in [None, ''] and description != task.description:
-        print("Description change.")
         update_fields.append('description = %s')
         update_values.append(description)
     if points != task.points:
-        print("Points changed.")
         update_fields.append('points = %s')
         update_values.append(points)
     if time != task.time:
-        print("Time changed.")
         update_fields.append('time = %s')
         update_values.append(time)
 
     # Also requires task instances to be updated
     instances_modified = False
     if frequency != task.frequency:
-        print("Frequency changed.")
         instances_modified = True
         update_fields.append('frequency = %s')
         update_values.append(frequency)
         task.frequency = frequency
     if start_date not in [None, ''] and start_date != task.start_date.strftime('%Y-%m-%d'):
-        print("Start date changed.")
         instances_modified = True
         update_fields.append('start_date = %s')
         update_values.append(start_date)
         task.start_date = start_date
     if end_date not in [None, ''] and end_date != task.end_date.strftime('%Y-%m-%d'):
-        print("End date changed.")
         instances_modified = True
         update_fields.append('end_date = %s')
         update_values.append(end_date)
@@ -206,7 +187,6 @@ def update_task(task_id, name, points, frequency,
             ''', (*update_values, task_id))
         print(f"Task {task_id} updated.")
 
-    print("Instances modified:", instances_modified)
     if instances_modified:
         # Delete 'pending' task instances
         cursor.execute('''
@@ -214,8 +194,7 @@ def update_task(task_id, name, points, frequency,
             WHERE task_id = %s
             AND status = 'pending'
             ''', (task_id,))
-        print(f"Deleted 'pending' task instances for task {task_id}.")
-        
+
         # Only insert new task instances from current day onwards
         # If start_date is not provided, set it to current date
         # If start_date is in the past, set it to current date
@@ -225,7 +204,6 @@ def update_task(task_id, name, points, frequency,
 
         # Insert new task instances
         insert_task_instances_for_task(task_id, frequency, start_date, end_date)
-        print(f"Inserted new task instances for task {task_id}.")
 
     conn.commit()
     conn.close()
@@ -305,8 +283,6 @@ valid_statuses = ['pending', 'completed', 'failed']
 def update_task_instance_status(id, status):
     if status not in valid_statuses:
         raise ValueError(f"status must be one of {valid_statuses}")
-    print(f"Updating task {id} with status: {status}")
-
 
     conn, cursor = connect()
     cursor.execute("UPDATE task_instances SET status = %s WHERE id = %s", (status, id))

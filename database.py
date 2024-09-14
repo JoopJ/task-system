@@ -44,6 +44,7 @@ def create_tables():
         FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE
     )
     ''')
+    # Points
 
     conn.commit()
     conn.close()
@@ -285,6 +286,39 @@ def update_task_instance_status(id, status):
         raise ValueError(f"status must be one of {valid_statuses}")
 
     conn, cursor = connect()
-    cursor.execute("UPDATE task_instances SET status = %s WHERE id = %s", (status, id))
+    # Get points for the task
+    cursor.execute('''
+        SELECT t.points 
+        FROM task_instances ti
+        JOIN tasks t ON ti.task_id = t.id
+        WHERE ti.id = %s
+        ''', (id,))
+    points = cursor.fetchone()[0]
+
+    if (status == 'failed'):
+        points = -points
+
+    # Update status and Points awarded
+    cursor.execute('''
+        UPDATE task_instances 
+        SET status = %s, points_awarded = %s 
+        WHERE id = %s
+        ''', (status, points, id))
+    
     conn.commit()
     conn.close()
+
+def get_total_points():
+    conn, cursor = connect()
+
+    cursor.execute('''
+        SELECT SUM(points_awarded) 
+        FROM task_instances 
+        WHERE status = 'completed' OR status = 'failed'
+        ''')
+    
+    result = cursor.fetchone()
+    total_points = result[0] if result[0] is not None else 0
+
+    conn.close()
+    return total_points

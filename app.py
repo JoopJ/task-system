@@ -18,8 +18,10 @@ def index():
     all_tasks = database.get_tasks()
     all_tasks = sorted(all_tasks, key=lambda x: x.name)
 
+    total_points = database.get_total_points()
+
     return render_template('index.html', all_tasks=all_tasks, 
-                           today_tasks=today_tasks, date=today)
+        today_tasks=today_tasks, date=today, total_points=total_points)
 
 @app.route('/add_task', methods=['GET', 'POST'])
 def add_task():

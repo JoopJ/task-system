@@ -25,25 +25,56 @@
         a {
             text-decoration: none;
         }
-        .header {
-            font-weight: bold;
-            font-size: 1.1em;
-            text-align: center;
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            border-bottom: 1px solid #ccc;
+            margin-bottom: 20px;
         }
-        .top-right {
-            position: absolute;
-            right: 20px;
-            top: 20px;
+        .header{
+            flex: 1;
+            font-weight: bold;
+            font-size: 1.7em;
+            text-align: center;
+            text-decoration: underline;
+        }
+        .points-tracker {
+            flex: 1;
+            text-align: center;
             font-size: 1.2em;
+            color: #25af2a
+        }
+        .add-task-link {
+            flex: 1;
+            text-align: center;
+            font-size: 1.2em;
+            color: #0b028d;
+        }
+        .positive-points {
+            color: #25af2a;
+        }
+        .negative-points {
+            color: #ff0000;
         }
     </style>
 </head>
 <body>
-    <!-- Link to add_task -->
-    <div class="top-right">
-        <a href="{{ url_for('add_task') }}">Add Task</a>
+    <div class="header-container">
+        <h1 class="header">Today's Tasks</h1>
+
+        <div class="points-tracker">
+            <span class="{{ 'positive-points' if total_points >= 0 
+                            else 'negative-points' }}">
+                Total Points: {{ total_points }}
+        </div>
+
+        <div class="add-task-link">
+            <a href="{{ url_for('add_task') }}">Add Task</a>
+        </div>
     </div>
-    <h1>Today's Tasks</h1>
+
     <table>
         <thead>
             <tr>
@@ -72,7 +103,10 @@
         </tbody>
     </table>
 
-    <h1>All Tasks</h1>
+    <div class="header-container">
+        <h1 class="header">All Tasks</h1>
+    </div>
+
     <table>
         <thead>
             <tr>

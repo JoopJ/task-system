@@ -18,11 +18,9 @@ def check_tasks():
     current_timedelta = timedelta(hours=now.hour, 
         minutes=now.minute, seconds=now.second)
     
-    print("Checking tasks at", current_timedelta)
+    #print("Checking tasks at", current_timedelta)
 
     for task_instance in task_instances:
-        print(task_instance.name)
-        print(current_timedelta, task_instance.time - timedelta(minutes=5), task_instance.time)
         if (current_timedelta == task_instance.time - timedelta(minutes=5) 
             or current_timedelta == task_instance.time
             and task_instance.status == 'pending'):
@@ -33,7 +31,6 @@ def check_tasks():
 schedule.every().minutes.at(":00").do(check_tasks)
 
 def run_scheduler():
-    print("Starting task checker thread...")
     while True:
         schedule.run_pending()
         time.sleep(1)

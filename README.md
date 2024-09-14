@@ -33,9 +33,6 @@ The application uses the following environment variables:
 
 ## Future Work
 - Testing
-- Points
-    - Keep track of points
-    - Display points
 - End of day check-off of completed tasks
 - Mobile device interaction:
     - View today's tasks
